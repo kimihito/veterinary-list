@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  main:
+      build: "."
+      container_name: "veterinary-list"
+      working_dir: /veterinary-list
+      command: npm start
+      volumes:
+        - ".:/veterinary-list"
+        - node_modules:/veterinary-list/node_modules
+volumes:
+  node_modules:
+    driver: local
