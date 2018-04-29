@@ -1,5 +1,7 @@
 import Parser from './parser'
 import hospitalParser from './hospitalParser'
+import emergencyHospitalParser from './emergencyHospitalParser'
+import mkdirp from 'mkdirp'
 import fs from 'fs'
 
 const URL = 'http://okijyu.jp/hospital_list/map.html';
@@ -21,6 +23,14 @@ const URL = 'http://okijyu.jp/hospital_list/map.html';
     const hospital = await hospitalParser(parser, link)
     hospitals.push(hospital)
   }
-  await parser.close()
   fs.writeFile(`${__dirname}/../dist/hospitals.json`, JSON.stringify(hospitals), (error) => new Error(error))
+
+  // parse emergency hospitals
+  const emergencyDatas = await emergencyHospitalParser(parser)
+  await mkdirp(`${__dirname}/../dist/emergency_hospitals`)
+  for (const data of emergencyDatas) {
+    const filename = data.monthYear.replace(/\//, '_')
+    fs.writeFile(`${__dirname}/../dist/emergency_hospitals/${filename}.json`, JSON.stringify(data.hospitals), (error) => new Error(error))
+  }
+  await parser.close()
 })();
