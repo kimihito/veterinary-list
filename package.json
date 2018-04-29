@@ -8,8 +8,8 @@
   },
   "dependencies": {
     "get-urls": "^7.2.0",
-    "puppeteer": "*",
-    "striptags": "*"
+    "mkdirp": "^0.5.1",
+    "puppeteer": "*"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
