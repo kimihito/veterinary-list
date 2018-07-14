@@ -1,4 +1,4 @@
-FROM node:8
+FROM node:10
 
 RUN apt-get update \
     && apt-get install -y \
@@ -40,20 +40,13 @@ RUN apt-get update \
     lsb-release \
     unzip \
     xdg-utils \
-    wget
-
-RUN mkdir /noto
-ADD https://noto-website.storage.googleapis.com/pkgs/NotoSansCJKjp-hinted.zip /noto
-WORKDIR /noto
-RUN unzip NotoSansCJKjp-hinted.zip && \
-    mkdir -p /usr/share/fonts/noto && \
-    cp *.otf /usr/share/fonts/noto && \
-    chmod 644 -R /usr/share/fonts/noto/ && \
-    /usr/bin/fc-cache -fv
-WORKDIR /
-RUN rm -rf /noto
+    wget \
+    fonts-takao-mincho
 
 
-WORKDIR /veterinary-list
-COPY     package.json ./
+ENV APP_ROOT /veterinary-list
+
+WORKDIR $APP_ROOT
+ADD package.json package-lock.json ./
 RUN npm install
+ADD . $APP_ROOT
