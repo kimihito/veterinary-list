@@ -3,18 +3,22 @@ import hospitalParser from './hospitalParser'
 import emergencyHospitalParser from './emergencyHospitalParser'
 import mkdirp from 'mkdirp'
 import fs from 'fs'
+import {
+  URL
+} from 'url'
 
-const URL = 'http://okijyu.jp/hospital_list/map.html';
+const MAPURL = 'http://okijyu.jp/hospital_list/map.html';
 
 (async () => {
   const parser = await new Parser()
   await parser.setup()
-  await parser.goto(URL)
+  await parser.goto(MAPURL)
   const areaLinks = await parser.linksFrom("td a:not([href='#'])")
   const hospitalLinks = []
   for (const link of areaLinks) {
     await parser.goto(link)
-    const hospitalLink = await parser.linksFrom("table table table td a:not([href='#'])")
+    const areaPath = new URL(link).pathname.split('/').pop().replace(/\.html$/, '')
+    const hospitalLink = await parser.linksFrom(`a[href*='${areaPath}/']`)
     hospitalLinks.push(...hospitalLink)
   }
 
