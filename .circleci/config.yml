@@ -1,9 +1,6 @@
 version: 2
 jobs:
   build:
-    branches:
-      ignore:
-        - gh-pages
     docker:
       - image: circleci/node:10-browsers
         environment:
@@ -89,7 +86,7 @@ jobs:
               git config --global user.name $GITHUB_NAME
               git init
               git add .
-              git commit -m "Deploy from $CIRCLE_BUILD_URL"
+              git commit -m "[ci skip] Deploy from $CIRCLE_BUILD_URL"
               git push --force --quiet $remote master:gh-pages
             fi
 
