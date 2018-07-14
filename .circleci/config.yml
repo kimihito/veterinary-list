@@ -72,7 +72,10 @@ jobs:
 
       - run:
           name: Run npm start
-          command: npm start
+          command: |
+            if [ $CIRCLE_BRANCH == $SOURCE_BRANCH ]; then
+              npm start
+            fi
 
       - deploy:
           name: Deploy to GitHub pages
