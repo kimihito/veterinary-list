@@ -11,7 +11,8 @@ export default class Parser {
       this.browser = await puppeteer.launch({
         args: [
           '--no-sandbox',
-          '--disable-setuid-sandbox'
+          '--disable-setuid-sandbox',
+          '--lang=ja,en-US,en'
         ]
       })
     }
@@ -35,23 +36,5 @@ export default class Parser {
     await this.page.screenshot({
       path: path
     })
-  }
-
-  async textFrom(selector) {
-    await this.page.$eval(selector, el => el.innerText)
-  }
-
-  async elementsFrom(selector) {
-    await this.page.evaluate(sel => {
-      const elements = Array.from(document.querySelectorAll(sel))
-      return [...new Set(elements.map(el => el))]
-    }, selector)
-  }
-
-  async linksFrom(selector) {
-    return await this.page.evaluate((sel) => {
-      const elements = Array.from(document.querySelectorAll(sel))
-      return [...new Set(elements.map(el => el.href).filter(path => path.toLowerCase().match(/^http(s?):/)))]
-    }, selector)
   }
 }
