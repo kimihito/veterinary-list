@@ -60,13 +60,14 @@ const NEWS_URL = 'https://www.okijyu.jp/entry-blog.php';
   const hospitalsPerMonth = []
   for (let i = 0; i < emergencyHospitalLinks.length; i++) {
     const link = emergencyHospitalLinks[i]
+    console.log(`${NEWS_URL}${link}`)
     await parser.goto(`${NEWS_URL}${link}`)
     let emergencyHospitals = await parser.page.$eval('#contentwrap', item => {
       const emargencyHospitalsByDate = item.innerText.split(/(\r\n|\n|\r)/).filter(text => text.match(/^(\d{4}\/(\d{2}|\d{1})\/(\d{2}|\d{1}))/))
       return emargencyHospitalsByDate.map(eh => {
         target = eh.trim().replace(/[Ａ-Ｚａ-ｚ０-９！＂＃＄％＆＇（）＊＋，－．／：；＜＝＞？＠［＼］＾＿｀｛｜｝]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0)).replace(/[‐－―]/g, "-")
-        matchedDate = target.match(/\d{4}\/(\d{2}|\d{1})\/(\d{2}|\d{1})\(\D{1}\)/)
-        matchedTel =target.match(/\d{3}-\d{4}/)
+        matchedDate = target.match(/\d{4}\/(\d{2}|\d{1})\/(\d{2}|\d{1})(\(\D{1}\))?/)
+        matchedTel = target.match(/\d{3}-\d{4}/)
         hospitalNameRange = matchedTel ? (matchedTel.index - matchedDate[0].length) : null
         hospitalName = matchedTel ? target.substr(matchedDate[0].length, hospitalNameRange).trim() : target.substr(matchedDate[0].length).trim()
         result = {
@@ -78,8 +79,10 @@ const NEWS_URL = 'https://www.okijyu.jp/entry-blog.php';
       })
     })
 
+    console.log(emergencyHospitals[0].date)
+
     hospitalsPerMonth.push({
-      monthYear: emergencyHospitals[0].date.replace(/\/\d{1,}\(\D{1}\)$/, ''),
+      monthYear: emergencyHospitals[0].date.replace(/\/\d{1,}(\(\D{1}\))?$/, ''),
       hospitals: emergencyHospitals
     })
   }
@@ -88,8 +91,8 @@ const NEWS_URL = 'https://www.okijyu.jp/entry-blog.php';
 
   await mkdirp(`${__dirname}/../dist/emergency_hospitals`)
   for (const data of hospitalsPerMonth) {
-    const filename = data.monthYear.replace(/\//, '_')
-    fs.writeFile(`${__dirname}/../dist/emergency_hospitals/${filename}.json`, JSON.stringify(data.hospitals), (error) => new Error(error))
+    const filename = data.monthYear.replace(/\//g, '_')
+    fs.writeFile(`${__dirname}/../dist/emergency_hospitals/${filename}.json`, JSON.stringify(data.hospitals), (error) => console.error(error))
   }
   await parser.close()
 })();
