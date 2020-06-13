@@ -54,8 +54,8 @@ const NEWS_URL = 'https://www.okijyu.jp/entry-blog.php';
     }
     return datas
   })
+  const emergencyHospitalLinks = datas.filter(data => data.textContent.match(/夜間診療案内/) && !data.textContent.match(/休診/)).map(data => data.href)
 
-  const emergencyHospitalLinks = datas.filter(data => data.textContent.match(/^夜間診療案内/)).map(data => data.href)
 
   const hospitalsPerMonth = []
   for (let i = 0; i < emergencyHospitalLinks.length; i++) {
@@ -63,7 +63,7 @@ const NEWS_URL = 'https://www.okijyu.jp/entry-blog.php';
     console.log(`${NEWS_URL}${link}`)
     await parser.goto(`${NEWS_URL}${link}`)
     let emergencyHospitals = await parser.page.$eval('#contentwrap', item => {
-      const emargencyHospitalsByDate = item.innerText.split(/(\r\n|\n|\r)/).filter(text => text.match(/^(\d{4}\/(\d{2}|\d{1})\/(\d{2}|\d{1}))/))
+      const emargencyHospitalsByDate = item.innerText.split(/(\r\n|\n|\r)/).filter(text => text.match(/^(\d{4}\/|\d{4}／)/))
       return emargencyHospitalsByDate.map(eh => {
         target = eh.trim().replace(/[Ａ-Ｚａ-ｚ０-９！＂＃＄％＆＇（）＊＋，－．／：；＜＝＞？＠［＼］＾＿｀｛｜｝]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0)).replace(/[‐－―]/g, "-")
         matchedDate = target.match(/\d{4}\/(\d{2}|\d{1})\/(\d{2}|\d{1})(\(\D{1}\))?/)
